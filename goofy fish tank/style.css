@@ -1,0 +1,354 @@
+:root{
+  --deep: #0B3B45;
+  --mid: #146B72;
+  --shallow: #2FA79B;
+  --sand: #E8C97A;
+  --sand-dark: #D4AE5C;
+  --cream: #FBF3DF;
+  --glass-frame: #5B4636;
+  --glass-frame-dark: #3E2F24;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: radial-gradient(circle at 50% 20%, #123641, #071E24 70%);
+  font-family: 'Fredoka', sans-serif;
+  color: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+  touch-action: none;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+}
+
+h1 {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 0 rgba(0,0,0,0.25);
+}
+
+.tank-frame {
+  padding: 16px;
+  border-radius: 34px;
+  background: linear-gradient(160deg, var(--glass-frame), var(--glass-frame-dark));
+  box-shadow: 0 20px 40px rgba(0,0,0,0.45), inset 0 0 0 4px rgba(255,255,255,0.06);
+}
+
+#tank {
+  position: relative;
+  width: min(700px, 88vw);
+  aspect-ratio: 8 / 5;
+  border-radius: 22px;
+  overflow: hidden;
+  background: linear-gradient(to bottom, var(--deep) 0%, var(--mid) 55%, var(--shallow) 100%);
+  box-shadow: inset 0 0 60px rgba(0,0,0,0.45);
+}
+
+/* glass sheen */
+#tank::before{
+  content:"";
+  position:absolute;
+  top:0; left:0; right:0; bottom:0;
+  background: linear-gradient(120deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.0) 22%);
+  pointer-events:none;
+  z-index: 20;
+}
+
+.sand {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 14%;
+  background: linear-gradient(to bottom, var(--sand), var(--sand-dark));
+  border-radius: 0 0 22px 22px;
+}
+.sand::before, .sand::after{
+  content:"";
+  position:absolute;
+  top: 10%;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.08);
+}
+.sand::before{ left: 20%; }
+.sand::after{ left: 68%; width:20px; height:10px; }
+
+.rock {
+  position: absolute;
+  bottom: 10%;
+  background: radial-gradient(circle at 30% 30%, #8a7a6a, #574a3d);
+  border-radius: 50% 50% 45% 45%;
+  z-index: 3;
+}
+
+.weed {
+  position: absolute;
+  bottom: 10%;
+  width: 14px;
+  border-radius: 40px 40px 4px 4px;
+  background: linear-gradient(to top, #1F6B4D, #3E9A6C);
+  transform-origin: bottom center;
+  animation: sway 3.4s ease-in-out infinite alternate;
+  z-index: 2;
+}
+@keyframes sway {
+  from { transform: rotate(-7deg); }
+  to   { transform: rotate(7deg); }
+}
+
+.bubbles { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.bubble {
+  position: absolute;
+  bottom: -20px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.35);
+  box-shadow: inset 0 0 3px rgba(255,255,255,0.6);
+  animation-name: rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes rise {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  10%  { opacity: 0.8; }
+  100% { transform: translateY(-320px) translateX(10px); opacity: 0; }
+}
+
+/* ---------- Fish ---------- */
+.fish {
+  position: absolute;
+  z-index: 10;
+  cursor: grab;
+  transition: filter 0.15s ease;
+  touch-action: none;
+}
+.fish:active { cursor: grabbing; }
+
+.fish-body {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transition: transform 0.25s ease;
+}
+.fish-body polygon, .fish-body ellipse { fill: currentColor; }
+
+.fish.squeezed {
+  filter: brightness(1.08);
+}
+.fish.squeezed .fish-body {
+  transform: scaleX(var(--facing, 1)) scale(0.82, 1.18);
+}
+
+.fish.wobble .fish-body {
+  animation: wobble 0.5s ease;
+}
+@keyframes wobble {
+  0%   { transform: scaleX(var(--facing,1)) scale(0.8, 1.2); }
+  35%  { transform: scaleX(var(--facing,1)) scale(1.12, 0.9); }
+  60%  { transform: scaleX(var(--facing,1)) scale(0.95, 1.05); }
+  100% { transform: scaleX(var(--facing,1)) scale(1, 1); }
+}
+
+.fish.gulp .fish-body {
+  animation: gulp 0.4s ease;
+}
+@keyframes gulp {
+  0%   { transform: scaleX(var(--facing,1)) scale(1, 1); }
+  50%  { transform: scaleX(var(--facing,1)) scale(1.18, 0.85); }
+  100% { transform: scaleX(var(--facing,1)) scale(1, 1); }
+}
+
+.fish.bump .fish-body {
+  animation: bumpSquash 0.26s ease;
+}
+@keyframes bumpSquash {
+  0%   { transform: scaleX(var(--facing,1)) scale(1, 1); }
+  40%  { transform: scaleX(var(--facing,1)) scale(0.8, 1.2); }
+  100% { transform: scaleX(var(--facing,1)) scale(1, 1); }
+}
+
+.crash {
+  position: absolute;
+  z-index: 30;
+  font-size: 13px;
+  font-weight: 700;
+  color: #FFF4D6;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: crashPop 0.5s ease forwards;
+}
+@keyframes crashPop {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.4) rotate(-8deg); }
+  30%  { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(4deg); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9) rotate(0deg); }
+}
+
+.eyes {
+  position: absolute;
+  top: 22%;
+  left: 58%;
+  display: flex;
+  gap: 3px;
+  z-index: 2;
+}
+.eye {
+  width: 22%;
+  aspect-ratio: 1;
+  min-width: 14px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3), inset 0 0 0 1.5px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.pupil {
+  width: 46%;
+  aspect-ratio: 1;
+  background: #201a17;
+  border-radius: 50%;
+  position: relative;
+}
+.pupil::after{
+  content:"";
+  position:absolute;
+  top: 15%; left: 55%;
+  width: 30%; height: 30%;
+  background: rgba(255,255,255,0.9);
+  border-radius: 50%;
+}
+
+.yum {
+  position: absolute;
+  z-index: 30;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cream);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  pointer-events: none;
+  animation: floatUp 0.9s ease forwards;
+  transform: translate(-50%, -50%);
+}
+@keyframes floatUp {
+  0%   { opacity: 0; transform: translate(-50%, -30%) scale(0.7); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -140%) scale(1.05); }
+}
+
+.food-pellet, .drag-ghost, .jar-pellet {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #FFDE8A, #C98A2E);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+.food-pellet { position: absolute; z-index: 8; }
+.drag-ghost { position: fixed; z-index: 999; pointer-events: none; }
+
+/* ---------- Food jar ---------- */
+.jar {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 15;
+  background: rgba(0,0,0,0.18);
+  border: 2px solid rgba(255,255,255,0.25);
+  border-radius: 14px;
+  padding: 8px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 62px;
+  backdrop-filter: blur(1px);
+}
+.jar-pellet { cursor: grab; touch-action: none; }
+.jar-label {
+  position: absolute;
+  top: -18px;
+  left: 2px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.7);
+  white-space: nowrap;
+}
+
+.caption {
+  max-width: 520px;
+  text-align: center;
+  font-size: 0.92rem;
+  color: rgba(251,243,223,0.75);
+  line-height: 1.5;
+}
+
+.angry-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.angry-label {
+  font-size: 0.85rem;
+  color: rgba(251,243,223,0.75);
+}
+.angry-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.4);
+  background: var(--c);
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.angry-btn:hover { transform: scale(1.1); }
+.angry-btn.active {
+  box-shadow: 0 0 0 3px rgba(255,70,50,0.9), 0 0 12px rgba(255,70,50,0.65);
+}
+.angry-btn.active::after {
+  content: "💢";
+  position: absolute;
+  top: -13px;
+  right: -9px;
+  font-size: 13px;
+}
+
+.fish.angry .fish-body { filter: saturate(1.5) brightness(1.05); }
+.fish.angry .eyes::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: -3px;
+  width: calc(100% + 6px);
+  height: 3px;
+  background: #7A1F1F;
+  border-radius: 2px;
+  transform: rotate(-10deg);
+}
+.fish.angry::after {
+  content: "💢";
+  position: absolute;
+  top: -16px;
+  right: -4px;
+  font-size: 15px;
+  z-index: 25;
+  animation: angryPulse 0.55s ease-in-out infinite alternate;
+}
+@keyframes angryPulse {
+  from { transform: scale(0.9) rotate(-6deg); }
+  to   { transform: scale(1.2) rotate(6deg); }
+}
